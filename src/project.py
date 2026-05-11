@@ -69,21 +69,33 @@ n = frames
 h2 = numpy.zeros(BARS)
 SMOOTHING = 0.09
 
+#cache stuff https://aaronnotes.com/2023/04/caching-in-python/
+cache = {}
+cache_size = 100
+
 def visualizer(n):
-    global h2
+    global h2, cache
     n = int(n)
     if n < 0:
         return
-    CHUNK = 2048
-    start = max(0, frames - n)
-    end = min(start + CHUNK, frames)
-    if start >= frames:
-        return
-    signal = wave_data[0][start:end]
-    if len(signal) < CHUNK:
-        signal = numpy.pad(signal, (0, CHUNK - len(signal)))
-    fft_data = numpy.abs(numpy.fft.rfft(signal))
+    cache_key = n // 100
+    if cache_key in cache:
+        fft_data = cache[cache_key]
+    else:
+        CHUNK = 2048
+        start = max(0, frames - n)
+        end = min(start + CHUNK, frames)
+        if start >= frames:
+            return
+        signal = wave_data[0][start:end]
+        if len(signal) < CHUNK:
+            signal = numpy.pad(signal, (0, CHUNK - len(signal)))
+        fft_data = numpy.abs(numpy.fft.rfft(signal))
 
+        if len(cache) >= cache_size:
+            oldest_key = min(cache.keys())
+            del cache[oldest_key]
+        cache[cache_key] = fft_data
     h = []
     for i in range(BARS):
         start_idx = int((i / BARS) ** 2 * len(fft_data))
