@@ -1,7 +1,5 @@
 pygame
 numpy
 tinytag
-vidmaker
 pydub
 ffmpeg (needed for pydub)
-ffmpeg-python (library)
