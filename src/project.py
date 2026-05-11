@@ -182,6 +182,14 @@ def draw_metadata():
         y += line_spacing
     return y
 
+def export_video():
+    print("Exporting video...")
+    video.export()
+    input_video = ffmpeg.input('output.mp4')
+    input_audio = ffmpeg.input(file_name)
+    ffmpeg.output(input_video, input_audio, 'final_output.mp4', vcodec='copy', acodec='aac', strict='experimental').run()
+    print("Finished.")
+
 def main():
     global status
     running = True
@@ -240,12 +248,7 @@ def main():
                     accumulated_time -= frame_interval
 
     pygame.quit()
-    print("Exporting video...")
-    video.export()
-    input_video = ffmpeg.input('output.mp4')
-    input_audio = ffmpeg.input(file_name)
-    ffmpeg.output(input_video, input_audio, 'final_output.mp4', vcodec='copy', acodec='aac', strict='experimental').run()
-    print("Finished.")
+    #export_video()
     sys.exit()
 
 if __name__ == "__main__":
