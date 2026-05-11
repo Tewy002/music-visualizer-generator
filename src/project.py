@@ -1,3 +1,4 @@
+from email.mime import image
 import sys, numpy, pygame
 
 from tinytag import TinyTag
@@ -101,6 +102,7 @@ def draw_bars(h):
 
 #image display
 
+
 #mp3 metadata
 tag = TinyTag.get(file_name)
 artist = tag.artist
@@ -134,46 +136,49 @@ def draw_timecode(size, x, y):
     draw_text(timecode, size, x, y)
 
 
-#main loop
-while True:
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT:
-            sys.exit()
-        #keyboard controls
-        elif event.type == pygame.USEREVENT:
-            status = "stopped"
-        elif event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_UP:
-                change_volume(0.1)
-            elif event.key == pygame.K_DOWN:
-                change_volume(-0.1)
-            elif event.key == pygame.K_SPACE:
-                if status == "playing":
-                    pygame.mixer.music.pause()
-                    status = "paused"
-                elif status in ("paused", "stopped"):
-                    pygame.mixer.music.unpause()
-                    status = "playing"
-            elif event.key == pygame.K_RETURN:
-                if status in ("playing", "paused"):
-                    pygame.mixer.music.stop()
-                    status = "stopped"
-                else:
-                    pygame.mixer.music.play()
-                    status = "playing"
-            elif event.key == pygame.K_ESCAPE:
+def main():
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
                 sys.exit()
+            #keyboard controls
+            elif event.type == pygame.USEREVENT:
+                status = "stopped"
+            elif event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_UP:
+                    change_volume(0.1)
+                elif event.key == pygame.K_DOWN:
+                    change_volume(-0.1)
+                elif event.key == pygame.K_SPACE:
+                    if status == "playing":
+                        pygame.mixer.music.pause()
+                        status = "paused"
+                    elif status in ("paused", "stopped"):
+                        pygame.mixer.music.unpause()
+                        status = "playing"
+                elif event.key == pygame.K_RETURN:
+                    if status in ("playing", "paused"):
+                        pygame.mixer.music.stop()
+                        status = "stopped"
+                    else:
+                        pygame.mixer.music.play()
+                        status = "playing"
+                elif event.key == pygame.K_ESCAPE:
+                    sys.exit()
 
-    
-    if n <= 0:
-        status = "stopped"
-    screen.fill((0,0,0))
-    clock.tick(FPS)
-    render(status)
-    draw_text(f'{title}', 40, 10, 10)
-    draw_text(f'{artist}', 30, 10, 60)
-    draw_text(f'{album}', 30, 10, 90)
-    draw_text(f'{genre}', 30, 10, 120)
-    draw_text(f'{year}', 30, 10, 150)
-    draw_timecode(30, 10, 180)
-    pygame.display.update()
+        
+        if n <= 0:
+            status = "stopped"
+        screen.fill((0,0,0))
+        clock.tick(FPS)
+        render(status)
+        draw_text(f'{title}', 40, 10, 10)
+        draw_text(f'{artist}', 30, 10, 60)
+        draw_text(f'{album}', 30, 10, 90)
+        draw_text(f'{genre}', 30, 10, 120)
+        draw_text(f'{year}', 30, 10, 150)
+        draw_timecode(30, 10, 180)
+        pygame.display.update()
+
+if __name__ == "__main__":
+    main()
