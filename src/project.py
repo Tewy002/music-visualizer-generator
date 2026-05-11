@@ -127,15 +127,19 @@ year = str(tag.year) if tag.year else ""
 #genre
 #year
 #timecode (changes)
-font_timecode = pygame.font.SysFont('Yu Gothic', 30)
+
+size = [80, 70, 50]
+font_title = pygame.font.SysFont('Yu Gothic', size[0])
+font_artist = pygame.font.SysFont('Yu Gothic', size[1])
+font = pygame.font.SysFont('Yu Gothic', size[2])
+font_timecode = pygame.font.SysFont('Yu Gothic', size[2])
 
 
-def draw_text(text, size, x, y):
-    font = pygame.font.SysFont('Yu Gothic', size)
+def draw_text(text, font, x, y):
     text_surface = font.render(text, True, (255, 255, 255))
     screen.blit(text_surface, (x, y))
-def draw_timecode(size, x, y):
-    font_timecode = pygame.font.SysFont('Yu Gothic', size)
+
+def draw_timecode(x, y):
     if status == "stopped":
         timecode = "0:00"
     else:
@@ -149,6 +153,26 @@ def draw_timecode(size, x, y):
             timecode = f"{minutes}:{seconds:02d}"
     text_surface = font_timecode.render(timecode, True, (255, 255, 255))
     screen.blit(text_surface, (x, y))
+
+def draw_metadata():
+    y = 90
+    line_spacing = 60
+    if title:
+        draw_text(title, font_title, 90, y)
+        y += 30 + line_spacing
+    if artist:
+        draw_text(artist, font_artist, 90, y)
+        y += 20 + line_spacing
+    if album:
+        draw_text(album, font, 90, y)
+        y += line_spacing
+    if genre:
+        draw_text(genre, font, 90, y)
+        y += line_spacing
+    if year:
+        draw_text(year, font, 90, y)
+        y += line_spacing
+    return y
 
 def main():
     global status
@@ -189,12 +213,8 @@ def main():
         background(0, 0)
         album_art(1130, 90)
         render(status)
-        draw_text(title, 80, 90, 90)
-        draw_text(artist, 70, 90, 200)
-        draw_text(album, 50, 90, 300)
-        draw_text(genre, 50, 90, 380)
-        draw_text(year, 50, 90, 460)
-        draw_timecode(50, 90, 540)
+        spacing = draw_metadata()
+        draw_timecode(90, spacing)
         pygame.display.update()
 
 if __name__ == "__main__":
