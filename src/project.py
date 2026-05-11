@@ -21,7 +21,6 @@ pygame.display.set_caption('Audio Visualizer')
 
 #init video maker
 video = vidmaker.Video("output.mp4", fps=FPS, resolution=(1920, 1080), late_export=True)
-time.sleep(1)
 
 #image display - load once during initialization
 background_img = None
@@ -43,11 +42,9 @@ def background(x, y):
 def album_art(x, y):
     if album_img:
         screen.blit(album_img, (x, y))
-time.sleep(1)
 #music player
-pygame.mixer.music.load(file_name)
-pygame.mixer.music.play()
-pygame.mixer.music.set_endevent()
+def load_music(file_name):
+    pygame.mixer.music.load(file_name)
 
 #volume control
 def set_volume(level):
@@ -57,7 +54,6 @@ def change_volume(dv):
     new_volume = max(0, min(1, current_volume + dv))
     pygame.mixer.music.set_volume(new_volume)
 
-status = "playing"
 set_volume(1)
 
 #mp3 audio data
@@ -190,6 +186,8 @@ def main():
     global status
     running = True
     next_capture_time = 0
+    status = "stopped"
+    load_music(file_name)
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
