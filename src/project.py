@@ -227,7 +227,7 @@ def main():
         prev_time = now
         dt = min(dt, 1 / 30)
         accumulated_time += dt
-        
+
         if accumulated_time >= target_time:
             accumulated_time -= target_time
             for event in pygame.event.get():
@@ -274,7 +274,7 @@ def main():
                         accumulated_time -= frame_interval
 
     pygame.quit()
-    #export_video()
+    export_video()
     sys.exit()
 
 if __name__ == "__main__":
