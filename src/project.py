@@ -1,4 +1,4 @@
-import sys, numpy, pygame
+import sys, numpy, pygame, vidmaker, time
 
 from tinytag import TinyTag
 from pydub import AudioSegment
@@ -17,6 +17,10 @@ pygame.init()
 pygame.mixer.init()
 screen = pygame.display.set_mode((1920, 1080), pygame.RESIZABLE)
 pygame.display.set_caption('Audio Visualizer')
+
+#init video maker
+video = vidmaker.Video("output.mp4", fps=FPS, resolution=(1920, 1080), late_export=True)
+time.sleep(1)
 
 #music player
 pygame.mixer.music.load(file_name)
@@ -186,6 +190,7 @@ def main():
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
+                video.export()
                 sys.exit()
             #keyboard controls
             elif event.type == pygame.USEREVENT:
@@ -210,6 +215,7 @@ def main():
                         pygame.mixer.music.play()
                         status = "playing"
                 elif event.key == pygame.K_ESCAPE:
+                    video.export()
                     sys.exit()
 
         
@@ -223,6 +229,8 @@ def main():
         spacing = draw_metadata()
         draw_timecode(90, spacing)
         pygame.display.update()
+        video.update(pygame.surfarray.pixels3d(screen).swapaxes(0, 1), inverted=False)
+
 
 if __name__ == "__main__":
     main()
