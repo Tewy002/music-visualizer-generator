@@ -1,4 +1,3 @@
-from email.mime import image
 import sys, numpy, pygame
 
 from tinytag import TinyTag
@@ -101,7 +100,15 @@ def draw_bars(h):
         pygame.draw.rect(screen,[255,255,255],i,0)
 
 #image display
+bg = sys.argv[2]
+ab = sys.argv[3]
 
+def background(x, y):
+    background_img = pygame.image.load(bg)
+    screen.blit(background_img, (x, y))
+def album_art(x, y):
+    album_img = pygame.image.load(ab)
+    screen.blit(album_img, (x, y))
 
 #mp3 metadata
 tag = TinyTag.get(file_name)
@@ -179,6 +186,8 @@ def main():
         draw_text(f'{genre}', 30, 10, 120)
         draw_text(f'{year}', 30, 10, 150)
         draw_timecode(30, 10, 180)
+        background(0, 0)
+        album_art(0, 0)
         pygame.display.update()
 
 if __name__ == "__main__":
