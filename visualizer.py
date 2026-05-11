@@ -4,7 +4,7 @@ from pydub import AudioSegment
 from scipy.fftpack import dct
 
 BARS = 50 # number of bars
-HEIGHT = 500 # height of bars
+HEIGHT = 100 # height of bars
 WIDTH = 12 # width of bars
 FPS = 60
 
@@ -72,7 +72,9 @@ def render(status):
         n = frames
         return
     else:
-        n -= framerate/FPS
+        music_pos_ms = max(0, pygame.mixer.music.get_pos())
+        music_pos_frames = int((music_pos_ms / 1000) * framerate)
+        n = frames - music_pos_frames
         if n > 0:
             visualizer(n)
 
