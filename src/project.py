@@ -1,5 +1,4 @@
-import sys, numpy, pygame, vidmaker, time
-import ffmpeg
+import sys, numpy, pygame, time
 
 from tinytag import TinyTag
 from pydub import AudioSegment
@@ -18,9 +17,6 @@ pygame.init()
 pygame.mixer.init()
 screen = pygame.display.set_mode((1920, 1080), pygame.RESIZABLE)
 pygame.display.set_caption('Audio Visualizer')
-
-#init video maker
-video = vidmaker.Video("output.mp4", fps=FPS, resolution=(1920, 1080), late_export=True)
 
 #image display - load once during initialization
 background_img = None
@@ -203,13 +199,6 @@ def draw_metadata():
         y += line_spacing
     return y
 
-def export_video():
-    print("Exporting video...")
-    video.export()
-    input_video = ffmpeg.input('output.mp4')
-    input_audio = ffmpeg.input(file_name)
-    ffmpeg.output(input_video, input_audio, 'final_output.mp4', vcodec='copy', acodec='aac', strict='experimental').run()
-    print("Finished.")
 
 def main():
     global status
@@ -218,7 +207,6 @@ def main():
     load_music(file_name)
     prev_time = time.perf_counter()
     dt = 0
-    frame_interval = 1 / FPS
     target_time = 1 / FPS
     accumulated_time = 0
     while running:
@@ -266,15 +254,8 @@ def main():
             spacing = draw_metadata()
             draw_timecode(90, spacing)
             pygame.display.flip()
-            if status == "playing":
-                music_pos_ms = pygame.mixer.music.get_pos()
-                if music_pos_ms >= 0:
-                    while accumulated_time >= frame_interval:
-                        video.update(pygame.surfarray.pixels3d(screen).swapaxes(0, 1), inverted=False)
-                        accumulated_time -= frame_interval
 
     pygame.quit()
-    export_video()
     sys.exit()
 
 if __name__ == "__main__":
