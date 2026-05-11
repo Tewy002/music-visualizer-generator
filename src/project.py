@@ -100,8 +100,8 @@ def draw_bars(h):
         pygame.draw.rect(screen,[255,255,255],i,0)
 
 #image display - load once during initialization
-bg = sys.argv[2]
-ab = sys.argv[3]
+bg = sys.argv[2] if len(sys.argv) > 2 else None
+ab = sys.argv[3] if len(sys.argv) > 3 else None
 
 background_img = pygame.image.load(bg)
 background_img = pygame.transform.scale(background_img, (1920, 1080))
@@ -109,9 +109,15 @@ album_img = pygame.image.load(ab)
 album_img = pygame.transform.scale(album_img, (700, 700))
 
 def background(x, y):
-    screen.blit(background_img, (x, y))
+    if background_img is not None:
+        screen.blit(background_img, (x, y))
+    else:
+        pass
 def album_art(x, y):
-    screen.blit(album_img, (x, y))
+    if album_img is not None:
+        screen.blit(album_img, (x, y))
+    else:
+        pass
 
 #mp3 metadata
 tag = TinyTag.get(file_name)
