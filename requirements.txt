@@ -1,0 +1,5 @@
+pygame
+numpy
+tinytag
+pydub
+ffmpeg (needed for pydub)
