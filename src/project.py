@@ -3,9 +3,9 @@ import sys, numpy, pygame
 from tinytag import TinyTag
 from pydub import AudioSegment
 
-BARS = 75 # number of bars
+BARS = 90 # number of bars
 HEIGHT = 400 # height of bars
-WIDTH = 24 # width of bars
+WIDTH = 20 # width of bars
 FPS = 60
 
 file_name = sys.argv[1]
@@ -95,7 +95,7 @@ def render(status):
 def draw_bars(h):
     bars = []
     for i in h:
-        bars.append([len(bars) * WIDTH, 200 + HEIGHT-i,WIDTH - 2,i])
+        bars.append([56 +len(bars) * WIDTH, 620 + HEIGHT-i,WIDTH - 4,i])
     for i in bars:
         pygame.draw.rect(screen,[255,255,255],i,0)
 
@@ -106,7 +106,7 @@ ab = sys.argv[3]
 background_img = pygame.image.load(bg)
 background_img = pygame.transform.scale(background_img, (1920, 1080))
 album_img = pygame.image.load(ab)
-album_img = pygame.transform.scale(album_img, (600, 600))
+album_img = pygame.transform.scale(album_img, (700, 700))
 
 def background(x, y):
     screen.blit(background_img, (x, y))
@@ -127,21 +127,15 @@ year = str(tag.year) if tag.year else ""
 #genre
 #year
 #timecode (changes)
-font_40 = pygame.font.SysFont('Yu Gothic', 40)
-font_30 = pygame.font.SysFont('Yu Gothic', 30)
 font_timecode = pygame.font.SysFont('Yu Gothic', 30)
 
 
 def draw_text(text, size, x, y):
-    if size == 40:
-        font = font_40
-    elif size == 30:
-        font = font_30
-    else:
-        font = pygame.font.SysFont('Yu Gothic', size)
+    font = pygame.font.SysFont('Yu Gothic', size)
     text_surface = font.render(text, True, (255, 255, 255))
     screen.blit(text_surface, (x, y))
-def draw_timecode(x, y):
+def draw_timecode(size, x, y):
+    font_timecode = pygame.font.SysFont('Yu Gothic', size)
     if status == "stopped":
         timecode = "0:00"
     else:
@@ -193,14 +187,14 @@ def main():
         screen.fill((0,0,0))
         clock.tick(FPS)
         background(0, 0)
-        album_art(200, 100)
+        album_art(1130, 90)
         render(status)
-        draw_text(title, 40, 10, 10)
-        draw_text(artist, 30, 10, 60)
-        draw_text(album, 30, 10, 90)
-        draw_text(genre, 30, 10, 120)
-        draw_text(year, 30, 10, 150)
-        draw_timecode(10, 180)
+        draw_text(title, 80, 90, 90)
+        draw_text(artist, 70, 90, 200)
+        draw_text(album, 50, 90, 300)
+        draw_text(genre, 50, 90, 380)
+        draw_text(year, 50, 90, 460)
+        draw_timecode(50, 90, 540)
         pygame.display.update()
 
 if __name__ == "__main__":
