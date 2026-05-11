@@ -15,7 +15,7 @@ clock = pygame.time.Clock()
 #screen
 pygame.init()
 pygame.mixer.init()
-screen = pygame.display.set_mode([BARS * WIDTH, 100 +HEIGHT]) 
+screen = pygame.display.set_mode([BARS * WIDTH, 200 + HEIGHT]) 
 pygame.display.set_caption('Audio Visualizer')
 
 #music player
@@ -95,7 +95,7 @@ def render(status):
 def draw_bars(h):
     bars = []
     for i in h:
-        bars.append([len(bars) * WIDTH, 100 + HEIGHT-i,WIDTH - 2,i])
+        bars.append([len(bars) * WIDTH, 200 + HEIGHT-i,WIDTH - 2,i])
     for i in bars:
         pygame.draw.rect(screen,[255,255,255],i,0)
 
@@ -115,10 +115,23 @@ year = tag.year
     #genre
     #year
     #timecode (changes)
-def draw_text(text, x, y):
-    font = pygame.font.SysFont(None, 20)
+def draw_text(text, size, x, y):
+    font = pygame.font.SysFont('Yu Gothic', size)
     text_surface = font.render(text, True, (255, 255, 255))
     screen.blit(text_surface, (x, y))
+def draw_timecode(size, x, y):
+    if status == "stopped":
+        timecode = "0:00"
+    else:
+        music_pos_ms = pygame.mixer.music.get_pos()
+        if music_pos_ms < 0:
+            timecode = "0:00"
+        else:
+            total_seconds = music_pos_ms // 1000
+            minutes = total_seconds // 60
+            seconds = total_seconds % 60
+            timecode = f"{minutes}:{seconds:02d}"
+    draw_text(timecode, size, x, y)
 
 
 #main loop
@@ -157,9 +170,10 @@ while True:
     screen.fill((0,0,0))
     clock.tick(FPS)
     render(status)
-    draw_text(f'{title}', 10, 10)
-    draw_text(f'{artist}', 10, 40)
-    draw_text(f'{album}', 10, 70)
-    draw_text(f'{genre}', 10, 100)
-    draw_text(f'{year}', 10, 130)
+    draw_text(f'{title}', 40, 10, 10)
+    draw_text(f'{artist}', 30, 10, 60)
+    draw_text(f'{album}', 30, 10, 90)
+    draw_text(f'{genre}', 30, 10, 120)
+    draw_text(f'{year}', 30, 10, 150)
+    draw_timecode(30, 10, 180)
     pygame.display.update()
