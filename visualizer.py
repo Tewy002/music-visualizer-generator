@@ -35,13 +35,12 @@ frames = wave_data.shape[1]
 
 n = frames
 #visualizer
-    #audio frequency mapping
-    #scale the bars
     #make it smoother
-
-temp = []
+h2 = numpy.zeros(BARS)
+SMOOTHING = 0.18
 
 def visualizer(n):
+    global h2
     n = int(n)
     CHUNK = 1024
     start = max(0, frames - n)
@@ -60,9 +59,12 @@ def visualizer(n):
             end_idx = start_idx + 1
         value = numpy.mean(fft_data[start_idx:end_idx])
 
+#scaling
+        value = min(HEIGHT, int((value ** 0.3) * HEIGHT / 130))
         h.append(value)
-    
-    draw_bars(h)
+#smooth animation
+    h2[:] = h2 + (h - h2) * SMOOTHING
+    draw_bars(h2)
 
 def render(status):
     global n
