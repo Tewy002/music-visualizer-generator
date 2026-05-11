@@ -4,7 +4,7 @@ from pydub import AudioSegment
 from scipy.fftpack import dct
 
 BARS = 50 # number of bars
-HEIGHT = 100 # height of bars
+HEIGHT = 500 # height of bars
 WIDTH = 12 # width of bars
 FPS = 60
 
@@ -15,7 +15,7 @@ clock = pygame.time.Clock()
 #screen
 pygame.init()
 pygame.mixer.init()
-screen = pygame.display.set_mode([BARS * WIDTH, + HEIGHT]) 
+screen = pygame.display.set_mode([BARS * WIDTH, 50 + HEIGHT]) 
 pygame.display.set_caption('Audio Visualizer')
 
 #music player
@@ -35,16 +35,33 @@ frames = wave_data.shape[1]
 
 n = frames
 #visualizer
-    #make the visualizer
     #audio frequency mapping
-    #make it look good lmao
+    #scale the bars
+    #make it smoother
 
 temp = []
 
 def visualizer(n):
     n = int(n)
-    h = abs(dct(wave_data[0][frames - n:frames - n + BARS *2]))
-    h = [min(HEIGHT,int(i **(1 / 2.5) * HEIGHT / 100)) for i in h]
+    CHUNK = 1024
+    start = max(0, frames - n)
+    end = start + CHUNK
+    signal = wave_data[0][start:end]
+    window = numpy.hanning(CHUNK)
+    signal = signal * window
+    fft_data = numpy.abs(numpy.fft.rfft(signal))
+    
+    h = []
+    for i in range(BARS):
+        start_idx = int((i / BARS) ** 2 * len(fft_data))
+        end_idx = int(((i + 1) / BARS) ** 2 * len(fft_data))
+
+        if end_idx <= start_idx:
+            end_idx = start_idx + 1
+        value = numpy.mean(fft_data[start_idx:end_idx])
+
+        h.append(value)
+    
     draw_bars(h)
 
 def render(status):
@@ -63,6 +80,7 @@ def draw_bars(h):
         bars.append([len(bars) * WIDTH,50 + HEIGHT-i,WIDTH - 1,i])
     for i in bars:
         pygame.draw.rect(screen,[255,255,255],i,0)
+
 #audio controller
 
 #image display
