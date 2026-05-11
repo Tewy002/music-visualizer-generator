@@ -137,6 +137,7 @@ def draw_timecode(size, x, y):
 
 
 def main():
+    global status
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
