@@ -49,7 +49,9 @@ def visualizer(n):
     window = numpy.hanning(CHUNK)
     signal = signal * window
     fft_data = numpy.abs(numpy.fft.rfft(signal))
-    
+    if len(signal) < CHUNK:
+        signal = numpy.pad(signal, (0, CHUNK - len(signal)))
+
     h = []
     for i in range(BARS):
         start_idx = int((i / BARS) ** 2 * len(fft_data))
@@ -58,6 +60,8 @@ def visualizer(n):
         if end_idx <= start_idx:
             end_idx = start_idx + 1
         value = numpy.mean(fft_data[start_idx:end_idx])
+
+    
 
 #scaling
         value = min(HEIGHT, int((value ** 0.3) * HEIGHT / 130))
