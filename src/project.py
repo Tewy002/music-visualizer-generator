@@ -155,6 +155,7 @@ font_timecode = pygame.font.SysFont('Yu Gothic', size[2])
 
 text_surface = {}
 timecode_surface = None
+last_timecode = 0
 
 def draw_text(text, font, x, y):
     global text_surface
@@ -165,17 +166,20 @@ def draw_text(text, font, x, y):
 
 def draw_timecode(x, y):
     global timecode_surface
+    global last_timecode
     if status == "stopped":
-        timecode = "0:00"
+        timecode2 = last_timecode
     else:
         music_pos_ms = pygame.mixer.music.get_pos()
         if music_pos_ms < 0:
-            timecode = "0:00"
+            timecode2 = last_timecode
         else:
-            total_seconds = music_pos_ms // 1000
-            minutes = total_seconds // 60
-            seconds = total_seconds % 60
-            timecode = f"{minutes}:{seconds:02d}"
+            timecode2 = music_pos_ms
+            last_timecode = music_pos_ms
+    total_seconds = timecode2 // 1000
+    minutes = total_seconds // 60
+    seconds = total_seconds % 60
+    timecode = f"{minutes}:{seconds:02d}"
     text_surface = font_timecode.render(timecode, True, (255, 255, 255))
     screen.blit(text_surface, (x, y))
 
@@ -201,9 +205,10 @@ def draw_metadata():
 
 
 def main():
-    global status
+    global status, last_timecode
     running = True
     status = "stopped"
+    last_timecode = 0
     load_music(file_name)
     prev_time = time.perf_counter()
     dt = 0
@@ -234,6 +239,8 @@ def main():
                             pygame.mixer.music.pause()
                             status = "paused"
                         elif status in ("paused", "stopped"):
+                            if status == "stopped":
+                                last_timecode = 0
                             pygame.mixer.music.unpause()
                             status = "playing"
                     elif event.key == pygame.K_RETURN:
@@ -241,6 +248,7 @@ def main():
                             pygame.mixer.music.stop()
                             status = "stopped"
                         else:
+                            last_timecode = 0
                             pygame.mixer.music.play()
                             status = "playing"
                     elif event.key == pygame.K_ESCAPE:
