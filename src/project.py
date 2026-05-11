@@ -23,6 +23,27 @@ pygame.display.set_caption('Audio Visualizer')
 video = vidmaker.Video("output.mp4", fps=FPS, resolution=(1920, 1080), late_export=True)
 time.sleep(1)
 
+#image display - load once during initialization
+background_img = None
+album_img = None
+
+if sys.argv[2] != 'none':
+    bg = sys.argv[2]
+    background_img = pygame.image.load(bg)
+    background_img = pygame.transform.scale(background_img, (1920, 1080))
+
+if sys.argv[3] != 'none':
+    ab = sys.argv[3]
+    album_img = pygame.image.load(ab)
+    album_img = pygame.transform.scale(album_img, (700, 700))
+
+def background(x, y):
+    if background_img:
+        screen.blit(background_img, (x, y))
+def album_art(x, y):
+    if album_img:
+        screen.blit(album_img, (x, y))
+time.sleep(1)
 #music player
 pygame.mixer.music.load(file_name)
 pygame.mixer.music.play()
@@ -103,27 +124,6 @@ def draw_bars(h):
         bars.append([56 +len(bars) * WIDTH, 620 + HEIGHT-i,WIDTH - 4,i])
     for i in bars:
         pygame.draw.rect(screen,[255,255,255],i,0)
-
-#image display - load once during initialization
-background_img = None
-album_img = None
-
-if sys.argv[2] != 'none':
-    bg = sys.argv[2]
-    background_img = pygame.image.load(bg)
-    background_img = pygame.transform.scale(background_img, (1920, 1080))
-
-if sys.argv[3] != 'none':
-    ab = sys.argv[3]
-    album_img = pygame.image.load(ab)
-    album_img = pygame.transform.scale(album_img, (700, 700))
-
-def background(x, y):
-    if background_img:
-        screen.blit(background_img, (x, y))
-def album_art(x, y):
-    if album_img:
-        screen.blit(album_img, (x, y))
 
 #mp3 metadata
 tag = TinyTag.get(file_name)
