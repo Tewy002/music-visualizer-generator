@@ -52,12 +52,14 @@ SMOOTHING = 0.09
 def visualizer(n):
     global h2
     n = int(n)
+    if n < 0:
+        return
     CHUNK = 2048
     start = max(0, frames - n)
-    end = start + CHUNK
+    end = min(start + CHUNK, frames)
+    if start >= frames:
+        return
     signal = wave_data[0][start:end]
-    window = numpy.hanning(CHUNK)
-    signal = signal * window
     fft_data = numpy.abs(numpy.fft.rfft(signal))
     if len(signal) < CHUNK:
         signal = numpy.pad(signal, (0, CHUNK - len(signal)))
@@ -84,7 +86,9 @@ def render(status):
         n = frames
         return
     else:
-        music_pos_ms = max(0, pygame.mixer.music.get_pos())
+        music_pos_ms = pygame.mixer.music.get_pos()
+        if music_pos_ms < 0:
+            return
         music_pos_frames = int((music_pos_ms / 1000) * framerate)
         n = frames - music_pos_frames
         if n > 0:
@@ -101,14 +105,14 @@ def draw_bars(h):
 
 #text display
 
+
+
 #main loop
 while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             sys.exit()
-        #audio controller
-            #pause/play
-            #restart
+        #keyboard controls
         elif event.type == pygame.USEREVENT:
             status = "stopped"
         elif event.type == pygame.KEYDOWN:
