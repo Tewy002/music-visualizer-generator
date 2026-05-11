@@ -125,13 +125,16 @@ def render(status):
         n = frames - music_pos_frames
         if n > 0:
             visualizer(n)
+bar_pos = []
+for i in range(BARS):
+    bar_pos.append((56 + i * WIDTH, 620 + HEIGHT, WIDTH - 4))
 
 def draw_bars(h):
-    bars = []
-    for i in h:
-        bars.append([56 +len(bars) * WIDTH, 620 + HEIGHT-i,WIDTH - 4,i])
-    for i in bars:
-        pygame.draw.rect(screen,[255,255,255],i,0)
+    for i in range(BARS):
+        x, base_y, width = bar_pos[i]
+        height = int(h[i])
+        y = base_y - height
+        pygame.draw.rect(screen, [255, 255, 255], (x, y, width, height), 0)
 
 #mp3 metadata
 tag = TinyTag.get(file_name)
@@ -154,12 +157,18 @@ font_artist = pygame.font.SysFont('Yu Gothic', size[1])
 font = pygame.font.SysFont('Yu Gothic', size[2])
 font_timecode = pygame.font.SysFont('Yu Gothic', size[2])
 
+text_surface = {}
+timecode_surface = None
 
 def draw_text(text, font, x, y):
-    text_surface = font.render(text, True, (255, 255, 255))
-    screen.blit(text_surface, (x, y))
+    global text_surface
+    key = (text, font)
+    if key not in text_surface:
+        text_surface[key] = font.render(text, True, (255, 255, 255))
+    screen.blit(text_surface[key], (x, y))
 
 def draw_timecode(x, y):
+    global timecode_surface
     if status == "stopped":
         timecode = "0:00"
     else:
@@ -207,57 +216,62 @@ def main():
     running = True
     status = "stopped"
     load_music(file_name)
-    prev_time = time.time()
+    prev_time = time.perf_counter()
     dt = 0
-    accumulated_time = 0
     frame_interval = 1 / FPS
+    target_time = 1 / FPS
+    accumulated_time = 0
     while running:
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
-            #keyboard controls
-            elif event.type == pygame.USEREVENT:
-                status = "stopped"
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_UP:
-                    change_volume(0.1)
-                elif event.key == pygame.K_DOWN:
-                    change_volume(-0.1)
-                elif event.key == pygame.K_SPACE:
-                    if status == "playing":
-                        pygame.mixer.music.pause()
-                        status = "paused"
-                    elif status in ("paused", "stopped"):
-                        pygame.mixer.music.unpause()
-                        status = "playing"
-                elif event.key == pygame.K_RETURN:
-                    if status in ("playing", "paused"):
-                        pygame.mixer.music.stop()
-                        status = "stopped"
-                    else:
-                        pygame.mixer.music.play()
-                        status = "playing"
-                elif event.key == pygame.K_ESCAPE:
-                    running = False
-        if n <= 0:
-            status = "stopped"
-        screen.fill((0,0,0))
-        now = time.time()
+        now = time.perf_counter()
         dt = now - prev_time
         prev_time = now
+        dt = min(dt, 1 / 30)
         accumulated_time += dt
-        background(0, 0)
-        album_art(1130, 90)
-        render(status)
-        spacing = draw_metadata()
-        draw_timecode(90, spacing)
-        pygame.display.flip()
-        if status == "playing":
-            music_pos_ms = pygame.mixer.music.get_pos()
-            if music_pos_ms >= 0:
-                while accumulated_time >= frame_interval:
-                    video.update(pygame.surfarray.pixels3d(screen).swapaxes(0, 1), inverted=False)
-                    accumulated_time -= frame_interval
+        
+        if accumulated_time >= target_time:
+            accumulated_time -= target_time
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+                #keyboard controls
+                elif event.type == pygame.USEREVENT:
+                    status = "stopped"
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_UP:
+                        change_volume(0.1)
+                    elif event.key == pygame.K_DOWN:
+                        change_volume(-0.1)
+                    elif event.key == pygame.K_SPACE:
+                        if status == "playing":
+                            pygame.mixer.music.pause()
+                            status = "paused"
+                        elif status in ("paused", "stopped"):
+                            pygame.mixer.music.unpause()
+                            status = "playing"
+                    elif event.key == pygame.K_RETURN:
+                        if status in ("playing", "paused"):
+                            pygame.mixer.music.stop()
+                            status = "stopped"
+                        else:
+                            pygame.mixer.music.play()
+                            status = "playing"
+                    elif event.key == pygame.K_ESCAPE:
+                        running = False
+            if n <= 0:
+                status = "stopped"
+            screen.fill((0,0,0))
+            background(0, 0)
+            album_art(1130, 90)
+            render(status)
+            spacing = draw_metadata()
+            draw_timecode(90, spacing)
+            pygame.display.flip()
+            if status == "playing":
+                music_pos_ms = pygame.mixer.music.get_pos()
+                if music_pos_ms >= 0:
+                    while accumulated_time >= frame_interval:
+                        video.update(pygame.surfarray.pixels3d(screen).swapaxes(0, 1), inverted=False)
+                        accumulated_time -= frame_interval
 
     pygame.quit()
     #export_video()
