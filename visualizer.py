@@ -15,7 +15,7 @@ clock = pygame.time.Clock()
 #screen
 pygame.init()
 pygame.mixer.init()
-screen = pygame.display.set_mode([BARS * WIDTH, HEIGHT]) 
+screen = pygame.display.set_mode([BARS * WIDTH, 100 +HEIGHT]) 
 pygame.display.set_caption('Audio Visualizer')
 
 #music player
@@ -72,7 +72,7 @@ def visualizer(n):
         value = numpy.mean(fft_data[start_idx:end_idx])
 
 #scaling
-        value = min(HEIGHT, int((value ** 0.3) * HEIGHT / 130))
+        value = min(HEIGHT, int((value ** 0.3) * HEIGHT / 100))
         h.append(value)
 #smooth animation
     h2[:] = h2 + (h - h2) * SMOOTHING
@@ -95,7 +95,7 @@ def render(status):
 def draw_bars(h):
     bars = []
     for i in h:
-        bars.append([len(bars) * WIDTH, HEIGHT-i,WIDTH - 2,i])
+        bars.append([len(bars) * WIDTH, 100 + HEIGHT-i,WIDTH - 2,i])
     for i in bars:
         pygame.draw.rect(screen,[255,255,255],i,0)
 
@@ -103,10 +103,22 @@ def draw_bars(h):
 
 #mp3 metadata
 tag = TinyTag.get(file_name)
-print(f'Artist: {tag.artist}')
-print(f'Title: {tag.title}')
-print(f'Album: {tag.album}')
+artist = tag.artist
+title = tag.title
+album = tag.album
+genre = tag.genre
+year = tag.year
 #text display
+    #title
+    #artist
+    #album
+    #genre
+    #year
+    #timecode (changes)
+def draw_text(text, x, y):
+    font = pygame.font.SysFont(None, 20)
+    text_surface = font.render(text, True, (255, 255, 255))
+    screen.blit(text_surface, (x, y))
 
 
 #main loop
@@ -145,4 +157,9 @@ while True:
     screen.fill((0,0,0))
     clock.tick(FPS)
     render(status)
+    draw_text(f'{title}', 10, 10)
+    draw_text(f'{artist}', 10, 40)
+    draw_text(f'{album}', 10, 70)
+    draw_text(f'{genre}', 10, 100)
+    draw_text(f'{year}', 10, 130)
     pygame.display.update()
