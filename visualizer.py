@@ -109,21 +109,30 @@ while True:
         #audio controller
             #pause/play
             #restart
-        if event.type == pygame.KEYDOWN:
-            keys = pygame.key.get_pressed()
-            if keys[pygame.K_UP]:
+        elif event.type == pygame.USEREVENT:
+            status = "stopped"
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_UP:
                 change_volume(0.1)
-            if keys[pygame.K_DOWN]:
+            elif event.key == pygame.K_DOWN:
                 change_volume(-0.1)
-            
-            if keys[pygame.K_SPACE]:
-                pygame.mixer.music.pause()
-            elif keys[pygame.K_SPACE]:
-                pygame.mixer.music.unpause()
-            if keys[pygame.K_RETURN]:
-                pygame.mixer.music.play
-            if keys[pygame.K_ESCAPE]:
+            elif event.key == pygame.K_SPACE:
+                if status == "playing":
+                    pygame.mixer.music.pause()
+                    status = "paused"
+                elif status in ("paused", "stopped"):
+                    pygame.mixer.music.unpause()
+                    status = "playing"
+            elif event.key == pygame.K_RETURN:
+                if status in ("playing", "paused"):
+                    pygame.mixer.music.stop()
+                    status = "stopped"
+                else:
+                    pygame.mixer.music.play()
+                    status = "playing"
+            elif event.key == pygame.K_ESCAPE:
                 sys.exit()
+
     
     if n <= 0:
         status = "stopped"
