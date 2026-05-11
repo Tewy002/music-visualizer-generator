@@ -1,4 +1,5 @@
 import sys, numpy, pygame, vidmaker, time
+import ffmpeg
 
 from tinytag import TinyTag
 from pydub import AudioSegment
@@ -187,11 +188,11 @@ def draw_metadata():
 
 def main():
     global status
-    while True:
+    running = True
+    while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
-                video.export()
-                sys.exit()
+                running = False
             #keyboard controls
             elif event.type == pygame.USEREVENT:
                 status = "stopped"
@@ -215,10 +216,7 @@ def main():
                         pygame.mixer.music.play()
                         status = "playing"
                 elif event.key == pygame.K_ESCAPE:
-                    video.export()
-                    sys.exit()
-
-        
+                    running = False
         if n <= 0:
             status = "stopped"
         screen.fill((0,0,0))
@@ -231,6 +229,14 @@ def main():
         pygame.display.update()
         video.update(pygame.surfarray.pixels3d(screen).swapaxes(0, 1), inverted=False)
 
+    pygame.quit()
+    print("Exporting video...")
+    video.export()
+    input_video = ffmpeg.input('output.mp4')
+    input_audio = ffmpeg.input(file_name)
+    ffmpeg.output(input_video, input_audio, 'final_output.mp4', vcodec='copy', acodec='aac', strict='experimental').run()
+    print("Finished.")
+    sys.exit()
 
 if __name__ == "__main__":
     main()
