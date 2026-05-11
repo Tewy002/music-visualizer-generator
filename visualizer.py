@@ -1,7 +1,7 @@
 import sys, numpy, pygame
 
+from tinytag import TinyTag
 from pydub import AudioSegment
-from scipy.fftpack import dct
 
 BARS = 50 # number of bars
 HEIGHT = 200 # height of bars
@@ -40,8 +40,6 @@ framerate = audio.frame_rate
 samples = numpy.array(audio.get_array_of_samples())
 wave_data = samples.reshape((-1, 2)).T
 frames = wave_data.shape[1]
-
-#mp3 metadata
 
 n = frames
 #visualizer
@@ -103,8 +101,12 @@ def draw_bars(h):
 
 #image display
 
+#mp3 metadata
+tag = TinyTag.get(file_name)
+print(f'Artist: {tag.artist}')
+print(f'Title: {tag.title}')
+print(f'Album: {tag.album}')
 #text display
-
 
 
 #main loop
