@@ -4,7 +4,7 @@ from pydub import AudioSegment
 from scipy.fftpack import dct
 
 BARS = 50 # number of bars
-HEIGHT = 100 # height of bars
+HEIGHT = 200 # height of bars
 WIDTH = 12 # width of bars
 FPS = 60
 
@@ -15,14 +15,24 @@ clock = pygame.time.Clock()
 #screen
 pygame.init()
 pygame.mixer.init()
-screen = pygame.display.set_mode([BARS * WIDTH, 50 + HEIGHT]) 
+screen = pygame.display.set_mode([BARS * WIDTH, HEIGHT]) 
 pygame.display.set_caption('Audio Visualizer')
 
 #music player
 pygame.mixer.music.load(file_name)
 pygame.mixer.music.play()
 pygame.mixer.music.set_endevent()
+
+#volume control
+def set_volume(level):
+    pygame.mixer.music.set_volume(level)
+def change_volume(dv):
+    current_volume = pygame.mixer.music.get_volume()
+    new_volume = max(0, min(1, current_volume + dv))
+    pygame.mixer.music.set_volume(new_volume)
+
 status = "playing"
+set_volume(1)
 
 #mp3 audio data
 audio = AudioSegment.from_file(file_name)
@@ -37,12 +47,12 @@ n = frames
 #visualizer
     #make it smoother
 h2 = numpy.zeros(BARS)
-SMOOTHING = 0.18
+SMOOTHING = 0.09
 
 def visualizer(n):
     global h2
     n = int(n)
-    CHUNK = 1024
+    CHUNK = 2048
     start = max(0, frames - n)
     end = start + CHUNK
     signal = wave_data[0][start:end]
@@ -60,8 +70,6 @@ def visualizer(n):
         if end_idx <= start_idx:
             end_idx = start_idx + 1
         value = numpy.mean(fft_data[start_idx:end_idx])
-
-    
 
 #scaling
         value = min(HEIGHT, int((value ** 0.3) * HEIGHT / 130))
@@ -85,11 +93,9 @@ def render(status):
 def draw_bars(h):
     bars = []
     for i in h:
-        bars.append([len(bars) * WIDTH,50 + HEIGHT-i,WIDTH - 1,i])
+        bars.append([len(bars) * WIDTH, HEIGHT-i,WIDTH - 2,i])
     for i in bars:
         pygame.draw.rect(screen,[255,255,255],i,0)
-
-#audio controller
 
 #image display
 
@@ -100,7 +106,27 @@ while True:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             sys.exit()
-
+        #audio controller
+            #pause/play
+            #restart
+        if event.type == pygame.KEYDOWN:
+            keys = pygame.key.get_pressed()
+            if keys[pygame.K_UP]:
+                change_volume(0.1)
+            if keys[pygame.K_DOWN]:
+                change_volume(-0.1)
+            
+            if keys[pygame.K_SPACE]:
+                pygame.mixer.music.pause()
+            elif keys[pygame.K_SPACE]:
+                pygame.mixer.music.unpause()
+            if keys[pygame.K_RETURN]:
+                pygame.mixer.music.play
+            if keys[pygame.K_ESCAPE]:
+                sys.exit()
+    
+    if n <= 0:
+        status = "stopped"
     screen.fill((0,0,0))
     clock.tick(FPS)
     render(status)
