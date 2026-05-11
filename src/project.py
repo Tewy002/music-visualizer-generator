@@ -3,9 +3,9 @@ import sys, numpy, pygame
 from tinytag import TinyTag
 from pydub import AudioSegment
 
-BARS = 50 # number of bars
-HEIGHT = 200 # height of bars
-WIDTH = 12 # width of bars
+BARS = 75 # number of bars
+HEIGHT = 400 # height of bars
+WIDTH = 24 # width of bars
 FPS = 60
 
 file_name = sys.argv[1]
@@ -115,11 +115,11 @@ def album_art(x, y):
 
 #mp3 metadata
 tag = TinyTag.get(file_name)
-artist = tag.artist
-title = tag.title
-album = tag.album
-genre = tag.genre
-year = tag.year
+artist = tag.artist if tag.artist else ""
+title = tag.title if tag.title else ""
+album = tag.album if tag.album else ""
+genre = tag.genre if tag.genre else ""
+year = str(tag.year) if tag.year else ""
 #text display - create fonts once during initialization
 #title
 #artist
@@ -130,6 +130,7 @@ year = tag.year
 font_40 = pygame.font.SysFont('Yu Gothic', 40)
 font_30 = pygame.font.SysFont('Yu Gothic', 30)
 font_timecode = pygame.font.SysFont('Yu Gothic', 30)
+
 
 def draw_text(text, size, x, y):
     if size == 40:
@@ -154,7 +155,6 @@ def draw_timecode(x, y):
             timecode = f"{minutes}:{seconds:02d}"
     text_surface = font_timecode.render(timecode, True, (255, 255, 255))
     screen.blit(text_surface, (x, y))
-
 
 def main():
     global status
@@ -195,11 +195,11 @@ def main():
         background(0, 0)
         album_art(200, 100)
         render(status)
-        draw_text(str(title), 40, 10, 10)
-        draw_text(str(artist), 30, 10, 60)
-        draw_text(str(album), 30, 10, 90)
-        draw_text(str(genre), 30, 10, 120)
-        draw_text(str(year), 30, 10, 150)
+        draw_text(title, 40, 10, 10)
+        draw_text(artist, 30, 10, 60)
+        draw_text(album, 30, 10, 90)
+        draw_text(genre, 30, 10, 120)
+        draw_text(year, 30, 10, 150)
         draw_timecode(10, 180)
         pygame.display.update()
 
