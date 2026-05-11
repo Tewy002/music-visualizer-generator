@@ -15,7 +15,7 @@ clock = pygame.time.Clock()
 #screen
 pygame.init()
 pygame.mixer.init()
-screen = pygame.display.set_mode([BARS * WIDTH, 200 + HEIGHT]) 
+screen = pygame.display.set_mode((1920, 1080), pygame.RESIZABLE)
 pygame.display.set_caption('Audio Visualizer')
 
 #music player
@@ -58,9 +58,9 @@ def visualizer(n):
     if start >= frames:
         return
     signal = wave_data[0][start:end]
-    fft_data = numpy.abs(numpy.fft.rfft(signal))
     if len(signal) < CHUNK:
         signal = numpy.pad(signal, (0, CHUNK - len(signal)))
+    fft_data = numpy.abs(numpy.fft.rfft(signal))
 
     h = []
     for i in range(BARS):
@@ -99,15 +99,18 @@ def draw_bars(h):
     for i in bars:
         pygame.draw.rect(screen,[255,255,255],i,0)
 
-#image display
+#image display - load once during initialization
 bg = sys.argv[2]
 ab = sys.argv[3]
 
+background_img = pygame.image.load(bg)
+background_img = pygame.transform.scale(background_img, (1920, 1080))
+album_img = pygame.image.load(ab)
+album_img = pygame.transform.scale(album_img, (600, 600))
+
 def background(x, y):
-    background_img = pygame.image.load(bg)
     screen.blit(background_img, (x, y))
 def album_art(x, y):
-    album_img = pygame.image.load(ab)
     screen.blit(album_img, (x, y))
 
 #mp3 metadata
@@ -117,18 +120,27 @@ title = tag.title
 album = tag.album
 genre = tag.genre
 year = tag.year
-#text display
-    #title
-    #artist
-    #album
-    #genre
-    #year
-    #timecode (changes)
+#text display - create fonts once during initialization
+#title
+#artist
+#album
+#genre
+#year
+#timecode (changes)
+font_40 = pygame.font.SysFont('Yu Gothic', 40)
+font_30 = pygame.font.SysFont('Yu Gothic', 30)
+font_timecode = pygame.font.SysFont('Yu Gothic', 30)
+
 def draw_text(text, size, x, y):
-    font = pygame.font.SysFont('Yu Gothic', size)
+    if size == 40:
+        font = font_40
+    elif size == 30:
+        font = font_30
+    else:
+        font = pygame.font.SysFont('Yu Gothic', size)
     text_surface = font.render(text, True, (255, 255, 255))
     screen.blit(text_surface, (x, y))
-def draw_timecode(size, x, y):
+def draw_timecode(x, y):
     if status == "stopped":
         timecode = "0:00"
     else:
@@ -140,7 +152,8 @@ def draw_timecode(size, x, y):
             minutes = total_seconds // 60
             seconds = total_seconds % 60
             timecode = f"{minutes}:{seconds:02d}"
-    draw_text(timecode, size, x, y)
+    text_surface = font_timecode.render(timecode, True, (255, 255, 255))
+    screen.blit(text_surface, (x, y))
 
 
 def main():
@@ -179,15 +192,15 @@ def main():
             status = "stopped"
         screen.fill((0,0,0))
         clock.tick(FPS)
-        render(status)
-        draw_text(f'{title}', 40, 10, 10)
-        draw_text(f'{artist}', 30, 10, 60)
-        draw_text(f'{album}', 30, 10, 90)
-        draw_text(f'{genre}', 30, 10, 120)
-        draw_text(f'{year}', 30, 10, 150)
-        draw_timecode(30, 10, 180)
         background(0, 0)
-        album_art(0, 0)
+        album_art(200, 100)
+        render(status)
+        draw_text(str(title), 40, 10, 10)
+        draw_text(str(artist), 30, 10, 60)
+        draw_text(str(album), 30, 10, 90)
+        draw_text(str(genre), 30, 10, 120)
+        draw_text(str(year), 30, 10, 150)
+        draw_timecode(10, 180)
         pygame.display.update()
 
 if __name__ == "__main__":
