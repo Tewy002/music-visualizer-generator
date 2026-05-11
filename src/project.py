@@ -189,6 +189,7 @@ def draw_metadata():
 def main():
     global status
     running = True
+    next_capture_time = 0
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -220,14 +221,20 @@ def main():
         if n <= 0:
             status = "stopped"
         screen.fill((0,0,0))
-        clock.tick(FPS)
+        clock.tick_busy_loop(FPS)
         background(0, 0)
         album_art(1130, 90)
         render(status)
         spacing = draw_metadata()
         draw_timecode(90, spacing)
         pygame.display.update()
-        video.update(pygame.surfarray.pixels3d(screen).swapaxes(0, 1), inverted=False)
+        if status == "playing":
+            music_pos_ms = pygame.mixer.music.get_pos()
+            if music_pos_ms >= 0:
+                current_time = music_pos_ms / 1000.0
+                if current_time >= next_capture_time:
+                    video.update(pygame.surfarray.pixels3d(screen).swapaxes(0, 1), inverted=False)
+                    next_capture_time += 1.0 / FPS
 
     pygame.quit()
     print("Exporting video...")
